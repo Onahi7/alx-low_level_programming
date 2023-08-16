@@ -1,40 +1,43 @@
+#include "function_pointers.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include "3-calc.h"
-
 /**
- * main - operates two numbers.
- * @argc: argument counter.
- * @argv: argument vector.
- * Return: result, otherwise 98 for arg error, 99 for op, error 100 for divide
- * or multiply by 0
+ * main - Prints the result of simple operations.
+ * @argc: The number of arguments supplied to the program.
+ * @argv: An array of pointers to the arguments.
+ *
+ * Return: Always 0.
  */
-
-int main(int argc, char **argv)
+int main(int __attribute__((__unused__)) argc, char *argv[])
 {
-        int num1, num2, answer;
-        int (*function)(int, int);
+	int num1, num2;
+	char *op;
 
-        if (argc != 4)
-        {
-                puts("Error");
-                exit(98);
-        }
+	if (argc != 4)
+	{
+		printf("Error\n");
+		exit(98);
+	}
 
-        if (argv[2][1] != '\0')
-        {
-                puts("Error");
-                exit(99);
-        }
+	num1 = atoi(argv[1]);
+	op = argv[2];
+	num2 = atoi(argv[3]);
 
-        function = get_op_func(*(argv + 2));
-        if (!function)
-        {
-                puts("Error");
-                exit(99);
-        }
+	if (get_op_func(op) == NULL || op[1] != '\0')
+	{
+		printf("Error\n");
+		exit(99);
+	}
 
-        num1 = atoi(argv[1]);
-        num2 = atoi(argv[3]);
-	answer = function(num1, num2);
-        printf("%d\n", answer);
-        return (0);
+	if ((*op == '/' && num2 == 0) ||
+	    (*op == '%' && num2 == 0))
+	{
+		printf("Error\n");
+		exit(100);
+	}
+
+	printf("%d\n", get_op_func(op)(num1, num2));
+
+	return (0);
 }
