@@ -1,84 +1,51 @@
 #include "search_algos.h"
-
-listint_t *recurse_helper(listint_t *curr, size_t size, size_t step, int val);
-listint_t *subrecurse_help(listint_t *curr, size_t step, int val);
-listint_t *look_ahead(listint_t *probe, size_t step);
+#include <math.h>
 
 /**
- * jump_list - jump search for linked list
- * @list: list to search
- * @size: size of list
- * @value: search value
+ * jump_list - searches for a value in an array of
+ * integers using the Jump search algorithm
  *
- * Return: index of matched value; NULL if not found
+ * @list: input list
+ * @size: size of the array
+ * @value: value to search in
+ * Return: index of the number
  */
 listint_t *jump_list(listint_t *list, size_t size, int value)
 {
-	if (list == NULL)
+	size_t index, k, m;
+	listint_t *prev;
+
+	if (list == NULL || size == 0)
 		return (NULL);
 
-	return (recurse_helper(list, size, sqrt(size), value));
-}
-/**
- * recurse_helper - recursive implement of jump search
- * @curr: current node of list
- * @size: size of list
- * @step: jump increment
- * @val: search value
- *
- * Return: index where value is located; -1 if value not found
- */
-listint_t *recurse_helper(listint_t *curr, size_t size, size_t step, int val)
-{
-	listint_t *next_step = NULL; /* pointer to next step */
+	m = (size_t)sqrt((double)size);
+	index = 0;
+	k = 0;
 
-	/* printf("Value checked at index [%lu] = [%d]\n", curr->index, curr->n); */
+	do {
+		prev = list;
+		k++;
+		index = k * m;
 
-	/* if value is greater than next_step, jump forward */
-	next_step = look_ahead(curr, step);
-	printf("Value checked at index [%lu] = [%d]\n",
-next_step->index, next_step->n);
-	if (curr->index + step < size && (next_step->n < val))
-		return (recurse_helper(next_step, size, step, val));
+		while (list->next && list->index < index)
+			list = list->next;
 
-	/* recurse subarray */
-	printf("Value found between indexes [%lu] and [%lu]\n",
-curr->index, (next_step->index));
+		if (list->next == NULL && index != list->index)
+			index = list->index;
 
-	return (subrecurse_help(curr, step, val));
-}
+		printf("Value checked at index [%d] = [%d]\n", (int)index, list->n);
 
-/**
- * look_ahead - check value at next step
- * @probe: pointer sent out to check next step in list
- * @step: jump interval
- *
- * Return: value at next jump interval
- */
-listint_t *look_ahead(listint_t *probe, size_t step)
-{
-	if (step <= 0 || probe->next == 0)
-		return (probe); /* return value at next step */
-	return (look_ahead(probe->next, step - 1));
-}
+	} while (index < size && list->next && list->n < value);
 
-/**
- * subrecurse_help - recursive implement for recursive implement
- * @curr: current node to check
- * @step: interval of jumps
- * @val: search value
- *
- * Return: index where value is located; -1 if value not found
- */
-listint_t *subrecurse_help(listint_t *curr, size_t step, int val)
-{
-	if (curr == NULL || step <= 0 || curr->n > val)
-		return (NULL);
+	printf("Value found between indexes ");
+	printf("[%d] and [%d]\n", (int)prev->index, (int)list->index);
 
-	printf("Value checked at index [%lu] = [%d]\n", curr->index, curr->n);
+	for (; prev && prev->index <= list->index; prev = prev->next)
+	{
+		printf("Value checked at index [%d] = [%d]\n", (int)prev->index, prev->n);
+		if (prev->n == value)
+			return (prev);
+	}
 
-	if (curr->n == val)
-		return (curr);
-	else
-		return (subrecurse_help(curr->next, step - 1, val));
+	return (NULL);
 }
